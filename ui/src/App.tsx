@@ -10,10 +10,12 @@ import AuthPage from "./pages/AuthPage";
 import RestaurantsPage from "./pages/RestaurantsPage";
 import DashboardPage from "./pages/DashboardPage";
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { Suspense, lazy } from "react";
+import Loading from "./components/Loading";
 
 const queryClient = new QueryClient();
 
-// Page transition variants
 const pageVariants = {
   initial: {
     opacity: 0,
@@ -32,9 +34,12 @@ const pageVariants = {
   },
 };
 
-// AnimatedRoutes component for page transitions
 const AnimatedRoutes = () => {
   const location = useLocation();
+
+  const RestaurantDetailPage = lazy(
+    () => import("./pages/RestaurantDetailPage")
+  );
 
   return (
     <AnimatePresence mode="wait">
@@ -77,8 +82,26 @@ const AnimatedRoutes = () => {
               variants={pageVariants}
               // transition={pageTransition}
             >
-              <DashboardPage />
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
             </motion.div>
+          }
+        />
+        <Route
+          path="/restaurant/:id"
+          element={
+            <Suspense fallback={<Loading />}>
+              <motion.div
+                initial="initial"
+                animate="in"
+                exit="out"
+                variants={pageVariants}
+                // transition={pageTransition}
+              >
+                <RestaurantDetailPage />
+              </motion.div>
+            </Suspense>
           }
         />
       </Routes>
@@ -97,27 +120,14 @@ function App() {
           transition={{ duration: 0.8 }}
         >
           <Navbar />
-          <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-hidden">
             <AnimatedRoutes />
           </main>
 
           {/* Luxury footer */}
-          <motion.footer
-            className="mt-16 py-8 border-t border-gray-200 bg-white/50 backdrop-blur-sm"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.6 }}
-          >
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-              <p
-                className="text-sm font-light"
-                style={{ color: "var(--dim-gray)" }}
-              >
-                © 2024 Restaurant Review Platform. Crafted with ❤️ for food
-                lovers.
-              </p>
-            </div>
-          </motion.footer>
+          <footer className="mt-16 py-8 border-t border-gray-200 bg-white/50 backdrop-blur-sm">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center"></div>
+          </footer>
         </motion.div>
       </Router>
     </QueryClientProvider>

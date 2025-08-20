@@ -38,12 +38,15 @@ export const loginUser = async (req: Request, res: Response) => {
 
 export const signupUser = async (req: Request, res: Response) => {
   try {
-    const { email, name, password } = req.body;
+    const { email, name, password, role } = req.body;
 
     if (!email || !name || !password) {
       return res
         .status(400)
         .json({ error: "Email, name, and password are required" });
+    }
+    if (!role) {
+      return res.status(400).json({ error: "Role is required" });
     }
 
     // Check if user already exists
@@ -63,6 +66,7 @@ export const signupUser = async (req: Request, res: Response) => {
         email,
         password: hashedPassword,
         name,
+        role,
       },
     });
 

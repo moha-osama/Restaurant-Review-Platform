@@ -47,7 +47,7 @@ model Review {
   restaurant_id String
   user_id       String
   rating        Decimal  @db.Decimal(3, 2)
-  sentiment     Decimal  @db.Decimal(3, 2)
+  sentiment     Float
   comment       String?  @db.Text
   created_at    DateTime @default(now())
 

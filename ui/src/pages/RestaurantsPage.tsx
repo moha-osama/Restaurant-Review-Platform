@@ -1,105 +1,60 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 import RestaurantCard from "../components/RestaurantCard";
-import Map from "../components/Map";
+// import Map from "../components/Map"; // Disabled map for now
 import { FaSearch, FaFilter } from "react-icons/fa";
 
-// Mock data - replace with actual API call
-const mockRestaurants = [
-  {
-    id: "1",
-    name: "The Golden Fork",
-    description:
-      "A cozy Italian restaurant serving authentic pasta and wood-fired pizzas in a warm, family-friendly atmosphere.",
-    rating: 4.5,
-    image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
-    location: "Downtown District",
-    coordinates: { lat: 40.7128, lng: -74.006 },
-  },
-  {
-    id: "2",
-    name: "Sakura Sushi Bar",
-    description:
-      "Fresh sushi and Japanese cuisine prepared by master chefs using traditional techniques and premium ingredients.",
-    rating: 4.8,
-    image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
-    location: "Riverside Quarter",
-    coordinates: { lat: 40.7589, lng: -73.9851 },
-  },
-  {
-    id: "3",
-    name: "Le Petit Bistro",
-    description:
-      "French bistro offering classic dishes like coq au vin and beef bourguignon in an elegant, romantic setting.",
-    rating: 4.3,
-    image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
-    location: "Historic District",
-    coordinates: { lat: 40.7505, lng: -73.9934 },
-  },
-  {
-    id: "4",
-    name: "Taco Fiesta",
-    description:
-      "Authentic Mexican street food with vibrant flavors, fresh ingredients, and a lively atmosphere.",
-    rating: 4.6,
-    image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
-    location: "Arts District",
-    coordinates: { lat: 40.7484, lng: -73.9857 },
-  },
-  {
-    id: "5",
-    name: "The Garden Cafe",
-    description:
-      "Farm-to-table dining featuring seasonal ingredients, organic produce, and sustainable practices.",
-    rating: 4.4,
-    image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
-    location: "Green Valley",
-    coordinates: { lat: 40.7614, lng: -73.9776 },
-  },
-  {
-    id: "6",
-    name: "Ocean Blue Seafood",
-    description:
-      "Fresh seafood restaurant with ocean views, specializing in grilled fish and shellfish dishes.",
-    rating: 4.7,
-    image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
-    location: "Harbor Front",
-    coordinates: { lat: 40.7021, lng: -74.0173 },
-  },
-];
+const BASE_API_URL = import.meta.env.VITE_BASE_API_URL as string;
+
+// Define the restaurant type based on API response
+interface Restaurant {
+  id: string;
+  owner_id: string;
+  name: string;
+  location: string;
+  description: string | null;
+  avg_rating: string;
+  avg_sentiment: string;
+  created_at: string;
+  avgRating: number | null;
+  avgSentiment: number | null;
+  // Add coordinates for map functionality
+  coordinates?: { lat: number; lng: number };
+}
 
 const RestaurantsPage = () => {
-  const [selectedRestaurant, setSelectedRestaurant] = useState<
-    (typeof mockRestaurants)[0] | null
-  >(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Mock API call using TanStack Query
-  const { data: restaurants, isLoading } = useQuery({
+  const { data: restaurants = [], isLoading } = useQuery({
     queryKey: ["restaurants"],
-    queryFn: () => Promise.resolve(mockRestaurants),
+    queryFn: async () => {
+      const response = await fetch(`${BASE_API_URL}restaurants`);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      // Add mock coordinates for map functionality since API doesn't provide them
+      return data.map((restaurant: Restaurant) => ({
+        ...restaurant,
+        coordinates: {
+          lat: 40.7128 + Math.random() * 0.1, // Random coordinates around NYC
+          lng: -74.006 + Math.random() * 0.1,
+        },
+      }));
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const filteredRestaurants =
-    restaurants?.filter(
-      (restaurant) =>
-        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredRestaurants = restaurants.filter(
+    (restaurant: Restaurant) =>
+      restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (restaurant.description &&
         restaurant.description
           .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        restaurant.location.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
-
-  const handleRestaurantClick = (restaurant: (typeof mockRestaurants)[0]) => {
-    setSelectedRestaurant(restaurant);
-  };
+          .includes(searchTerm.toLowerCase())) ||
+      restaurant.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (isLoading) {
     return (
@@ -119,7 +74,6 @@ const RestaurantsPage = () => {
       </div>
     );
   }
-
   return (
     <div>
       <div className="text-center">
@@ -155,31 +109,56 @@ const RestaurantsPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Panel - Restaurant List */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
+      <motion.div
+        className="grid gap-8 grid-cols-1"
+        layout
+        transition={{ duration: 0.4, ease: "easeInOut" }}
+      >
+        {/* Restaurant List */}
+        <motion.div
+          className="space-y-6"
+          layout
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
+          <motion.div
+            className="flex items-center justify-between"
+            layout
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+          >
             <h2
               className="text-3xl font-bold tracking-tight"
               style={{ color: "var(--night)" }}
             >
-              {filteredRestaurants.length} Restaurants Found
+              {filteredRestaurants.length} Restaurants
             </h2>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredRestaurants.map((restaurant) => (
-              <div key={restaurant.id}>
+          <motion.div
+            className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            layout
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+          >
+            {filteredRestaurants.map((restaurant: Restaurant) => (
+              <motion.div
+                key={restaurant.id}
+                layout
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+              >
                 <RestaurantCard
                   {...restaurant}
-                  onClick={() => handleRestaurantClick(restaurant)}
+                  rating={parseFloat(restaurant.avg_rating) || 0}
+                  image="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop"
                 />
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {filteredRestaurants.length === 0 && (
-            <div className="text-center py-16">
+            <motion.div
+              className="text-center py-16"
+              layout
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+            >
               <div
                 className="text-8xl mb-6"
                 style={{ color: "var(--dim-gray)" }}
@@ -198,15 +177,64 @@ const RestaurantsPage = () => {
               >
                 Try adjusting your search terms or filters.
               </p>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
-        {/* Right Panel - Map */}
-        <div className="lg:col-span-1">
-          <Map selectedRestaurant={selectedRestaurant || undefined} />
-        </div>
-      </div>
+        {/* Map Panel - Disabled for now */}
+        {/* <AnimatePresence mode="wait">
+          {selectedRestaurant && (
+            <motion.div
+              ref={mapRef}
+              className="lg:col-span-1 relative"
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -20 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              layout
+            >
+              <div className="sticky top-4 h-[calc(100vh-2rem)] max-h-[800px]">
+                <motion.button
+                  onClick={handleCloseMap}
+                  className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg border border-gray-200 hover:bg-white transition-all duration-200 hover:scale-110"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    style={{ color: "var(--dim-gray)" }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </motion.button>
+
+                <Map
+                  selectedRestaurant={{
+                    name: selectedRestaurant.name,
+                    location: selectedRestaurant.location,
+                    coordinates: selectedRestaurant.coordinates || {
+                      lat: 40.7128,
+                      lng: -74.006,
+                    },
+                  }}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence> */}
+      </motion.div>
     </div>
   );
 };

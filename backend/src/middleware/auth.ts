@@ -35,11 +35,15 @@ export async function auth(req: Request, res: Response, next: NextFunction) {
 
 export function requireRole(...roles: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !req.user.role) {
+    const token = req.cookies.auth_token;
+    const decoded = jwt.decode(token) as JwtPayload;
+    const userRole = decoded.role.toLowerCase();
+
+    if (!userRole) {
       return res.status(403).json({ error: "User role not found" });
     }
 
-    if (!roles.includes(req.user.role.toLowerCase())) {
+    if (!userRole.includes(req.user.role.toLowerCase())) {
       return res
         .status(403)
         .json({ error: "You do not have access to this resource" });

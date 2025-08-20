@@ -12,7 +12,7 @@ interface MapProps {
 const Map = ({ selectedRestaurant }: MapProps) => {
   return (
     <motion.div 
-      className="card h-full min-h-[500px] relative border border-gray-100 shadow-xl overflow-hidden"
+      className="card h-full relative border border-gray-100 shadow-xl overflow-hidden"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}

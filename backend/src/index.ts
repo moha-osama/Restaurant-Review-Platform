@@ -30,7 +30,7 @@ app.use(express.json());
 
 app.use("/users", userRouter);
 app.use("/restaurants", restaurantRouter);
-app.use("/restaurants", reviewRouter);
+app.use("/restaurants", reviewRouter); // because reviews alwayes realted to restaurants
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Restaurant Review Platform!");

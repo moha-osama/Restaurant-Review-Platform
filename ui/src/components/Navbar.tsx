@@ -1,57 +1,21 @@
 import { Link } from "react-router-dom";
-import { FaUtensils, FaUser, FaSignInAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { FaUtensils, FaUser, FaSignInAlt, FaSpinner } from "react-icons/fa";
+import { useAuth } from "../../hooks/useAuth";
 
 const Navbar = () => {
-  const navigate = useNavigate();
-
-  const [user, setUser] = useState<{
-    name?: string;
-    profilePicture?: string;
-  } | null>(null);
-
-  const BASE_API_URL = import.meta.env.VITE_BASE_API_URL as string;
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch(`${BASE_API_URL}users/profile`, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (response.ok) {
-          const data = await response.json(); // ← Added 'await' here!
-          setUser({
-            name: data.name,
-            profilePicture: data.profilePicture,
-          });
-
-          // Use navigate instead of window.location.href for better UX
-          navigate("/"); // ← Better than window.location.href
-
-          // OR if you want to stay on current page, remove this line entirely
-        } else {
-          console.error("Failed to fetch user profile");
-          setUser(null); // ← Clear user state on failure
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-        setUser(null); // ← Handle network errors
-      }
-    };
-
-    fetchUser();
-  }, []);
+  const { isLoggedIn, user, isLoading, logout } = useAuth();
 
   const getInitial = (name?: string) => {
     if (!name) return <FaUser />;
     return (
-      <span className="bg-yellow-400 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold">
+      <span className="bg-yellow-400 text-white rounded-full flex items-center justify-center w-10 h-10 text-xl font-bold">
         {name.split(" ")[0][0]}
       </span>
     );
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -72,19 +36,35 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-8">
-            {user ? (
-              <Link to="/dashboard" className="flex items-center space-x-2">
-                {user.profilePicture ? (
-                  <img
-                    src={user.profilePicture}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full object-cover border-2 border-yellow-400"
-                  />
-                ) : (
-                  getInitial(user.name)
-                )}
-              </Link>
+            {isLoading ? (
+              // Show loading spinner while checking auth status
+              <div className="flex items-center space-x-2">
+                <FaSpinner className="animate-spin text-yellow-400" />
+              </div>
+            ) : isLoggedIn && user ? (
+              // Show user profile and logout option
+              <div className="flex items-center space-x-4">
+                <Link to="/dashboard" className="flex items-center space-x-2">
+                  {user.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt="Profile"
+                      className="w-10 h-10 rounded-full object-cover border-2 border-yellow-400"
+                    />
+                  ) : (
+                    getInitial(user.name)
+                  )}
+                  <span className="text-gray-700 font-medium">{user.name}</span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-red-600 transition-colors duration-200 px-3 py-1 rounded-md hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
             ) : (
+              // Show login button for non-authenticated users
               <Link
                 to="/auth"
                 className="btn-primary flex items-center space-x-2 px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
