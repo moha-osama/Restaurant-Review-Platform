@@ -59,7 +59,6 @@ export const useAuth = () => {
           method: "GET",
           credentials: "include",
         });
-
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
@@ -96,7 +95,6 @@ export const useAuth = () => {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "Login failed");
       }
-
       return response.json();
     },
     onSuccess: (data: LoginResponse) => {

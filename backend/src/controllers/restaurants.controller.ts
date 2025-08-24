@@ -1,6 +1,13 @@
-import type { Request, Response } from "express";
+import { json, type Request, type Response } from "express";
 import prisma from "../lib/client.js";
 import validator from "validator";
+import {
+  getValue,
+  setValue,
+  deleteData,
+  deletePattern,
+  setValueWithTTL,
+} from "../lib/redis-client.js";
 
 export async function addRestaurant(req: Request, res: Response) {
   try {
@@ -25,7 +32,7 @@ export async function addRestaurant(req: Request, res: Response) {
         owner_id: req.user?.id,
       },
     });
-
+    await deletePattern("top-restaurants-*");
     res.status(201).json(restaurant);
   } catch (error) {
     const errorMessage =
@@ -127,6 +134,9 @@ export async function updateRestaurant(req: Request, res: Response) {
       data: { name, location },
     });
 
+    await deletePattern("top-restaurants-*");
+    await deleteData(`restaurant-${id}`);
+
     res.status(200).json(restaurant);
   } catch (error) {
     res.status(400).json({ error: "Failed to update restaurant" });
@@ -138,6 +148,8 @@ export async function deleteRestaurant(req: Request, res: Response) {
   try {
     const id = req.params.id;
     await prisma.restaurant.delete({ where: { id } });
+    await deletePattern("top-restaurants-*");
+    await deleteData(`restaurant-${id}`);
     res.json({ message: "Restaurant deleted" });
   } catch (error) {
     res.status(400).json({ error: "Failed to delete restaurant" });
@@ -148,7 +160,7 @@ export async function deleteRestaurant(req: Request, res: Response) {
 export async function getUserRestaurants(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
-    
+
     if (!userId) {
       return res.status(401).json({ error: "User not authenticated" });
     }
@@ -184,5 +196,30 @@ export async function getUserRestaurants(req: Request, res: Response) {
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch user restaurants" });
+  }
+}
+
+export async function getTopRestaurants(req: Request, res: Response) {
+  try {
+    const count = req.params.count ? parseInt(req.params.count) : 1;
+    const cacheKey = `top-restaurants-${count}`;
+    const cachedData = await getValue(cacheKey);
+    if (cachedData) {
+      const parsedData = JSON.parse(cachedData);
+      return res.status(200).json({ cachedData: true, parsedData });
+    } else {
+      const topRestaurants = await prisma.restaurant.findMany({
+        orderBy: {
+          avg_rating: "desc",
+        },
+        take: count,
+      });
+      // await setValue(cacheKey, JSON.stringify(topRestaurants));
+      await setValueWithTTL(cacheKey, JSON.stringify(topRestaurants), 300);
+
+      res.status(200).json(topRestaurants);
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch top restaurants" });
   }
 }

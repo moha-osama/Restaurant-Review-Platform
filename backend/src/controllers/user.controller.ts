@@ -2,6 +2,15 @@ import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import prisma from "../lib/client.js";
 
+// Consistent cookie options
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production", // false for localhost, true for production
+  sameSite: "strict" as const, // Consistent across all functions
+  maxAge: 24 * 60 * 60 * 1000, // 1 day
+  path: "/",
+};
+
 // login/signup/logout a user
 export const loginUser = async (req: Request, res: Response) => {
   try {
@@ -18,13 +27,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
     const { email: userEmail, name, role, createdAt } = user;
     res
-      .cookie("auth_token", token, {
-        httpOnly: true,
-        secure: false, // Set to false for localhost (true for HTTPS in production)
-        sameSite: "lax", // Changed from "strict" to "lax" for CORS
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
-        path: "/", // Explicitly set path
-      })
+      .cookie("auth_token", token, cookieOptions)
       .status(200)
       .json({
         user: { email: userEmail, name, role, createdAt },

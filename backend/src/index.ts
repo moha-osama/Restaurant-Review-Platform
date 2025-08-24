@@ -33,7 +33,7 @@ app.use("/restaurants", restaurantRouter);
 app.use("/restaurants", reviewRouter); // because reviews alwayes realted to restaurants
 
 app.get("/", (req, res) => {
-  res.send("Welcome to the Restaurant Review Platform!");
+  res.send("Welcome to the Restaurant Review Platform! - v2");
 });
 
 app.listen(port, () => {
