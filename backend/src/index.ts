@@ -1,7 +1,13 @@
 import express from "express";
+
 import userRouter from "./routes/user.router.js";
 import restaurantRouter from "./routes/restaurants.router.js";
 import reviewRouter from "./routes/review.router.js";
+import eventsRouter from "./routes/events.router.js";
+import assignmentsRouter from "./routes/assignments.router.js";
+import experimentsRouter from "./routes/experiments.router.js";
+import variantsRouter from "./routes/variants.router.js";
+
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -31,6 +37,12 @@ app.use(express.json());
 app.use("/users", userRouter);
 app.use("/restaurants", restaurantRouter);
 app.use("/restaurants", reviewRouter); // because reviews alwayes realted to restaurants
+
+// events tracking routes
+app.use("/events", eventsRouter);
+app.use("/assignments", assignmentsRouter);
+app.use("/experiments", experimentsRouter);
+app.use("/variants", variantsRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Restaurant Review Platform! - v2");

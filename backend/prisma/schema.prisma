@@ -54,3 +54,47 @@ model Review {
   restaurant Restaurant @relation(fields: [restaurant_id], references: [id], onDelete: Cascade)
   user       User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
+
+model Events {
+  id               String   @id @default(cuid())
+  event_name       String
+  user_id          String
+  timestamp        DateTime @default(now())
+  event_properties Json
+  experiment_id    String?   // optional
+  variant_id       String?   // optional
+  device_type      String
+  platform         String
+  experiment       Experiment? @relation(fields: [experiment_id], references: [id])
+  variant          Variant?    @relation(fields: [variant_id], references: [id])
+}
+
+model Assignment {
+  id          String   @id @default(cuid())
+  user_id     String
+  experiment_id String
+  variant_id   String
+  experiment  Experiment @relation(fields: [experiment_id], references: [id])
+  variant     Variant    @relation(fields: [variant_id], references: [id])
+}
+
+model Variant {
+  id            String      @id @default(cuid())
+  name          String      // "A", "B", "C"
+  description   String?
+  experiment_id String
+  experiment    Experiment  @relation(fields: [experiment_id], references: [id])
+  assignments   Assignment[]
+  events        Events[]
+}
+
+model Experiment {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  start_date  DateTime
+  end_date    DateTime?
+  variants    Variant[]
+  assignments Assignment[]
+  events      Events[]
+}

@@ -1,4 +1,4 @@
-import { json, type Request, type Response } from "express";
+import { type Request, type Response } from "express";
 import prisma from "../lib/client.js";
 import validator from "validator";
 import {
