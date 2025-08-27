@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import ProfileCard from "../components/ProfileCard";
 import ReviewsList from "../components/ReviewsList";
 import OwnerRestaurants from "../components/OwnerRestaurants";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL as string;
 

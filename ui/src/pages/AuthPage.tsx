@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { FaEnvelope, FaLock, FaUser, FaEye, FaEyeSlash, FaExclamationTriangle, FaStore, FaUserFriends, FaCheckCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);

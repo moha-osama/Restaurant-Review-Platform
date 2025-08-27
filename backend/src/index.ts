@@ -7,6 +7,8 @@ import eventsRouter from "./routes/events.router.js";
 import assignmentsRouter from "./routes/assignments.router.js";
 import experimentsRouter from "./routes/experiments.router.js";
 import variantsRouter from "./routes/variants.router.js";
+import { ipMiddleware } from "./middleware/ipMiddleware.js";
+import { sessionMiddleware } from "./middleware/session.js";
 
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -15,6 +17,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cookieParser());
+app.use(ipMiddleware);
+app.use(sessionMiddleware);
 app.use(
   cors({
     origin: "http://localhost:5173", // ← Change this from "*" to specific URL

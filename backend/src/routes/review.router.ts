@@ -4,6 +4,8 @@ import {
   addReview,
   listReviews,
   deleteReview,
+  voteReview,
+  getUserVote,
 } from "../controllers/review.controller.js";
 
 const reviewRouter = Router();
@@ -27,6 +29,20 @@ reviewRouter.delete(
   auth,
   requireRole("user", "admin", "owner"),
   deleteReview
+);
+
+reviewRouter.post(
+  "/:id/reviews/:reviewId/vote",
+  auth,
+  requireRole("user", "admin", "owner"),
+  voteReview
+);
+
+reviewRouter.get(
+  "/:id/reviews/:reviewId/vote",
+  auth,
+  requireRole("user", "admin", "owner"),
+  getUserVote
 );
 
 export default reviewRouter;

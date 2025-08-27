@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import AuthPage from "./pages/AuthPage";
 import RestaurantsPage from "./pages/RestaurantsPage";
 import DashboardPage from "./pages/DashboardPage";
+import LeaderBoard from "./pages/LeaderBoard";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Suspense, lazy } from "react";
@@ -85,6 +86,20 @@ const AnimatedRoutes = () => {
               <ProtectedRoute>
                 <DashboardPage />
               </ProtectedRoute>
+            </motion.div>
+          }
+        />
+        <Route
+          path="/leaderboard"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              // transition={pageTransition}
+            >
+              <LeaderBoard />
             </motion.div>
           }
         />

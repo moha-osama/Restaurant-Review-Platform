@@ -76,6 +76,27 @@ const prisma = new PrismaClient().$extends({
       },
     },
   },
+  query: {
+    user: {
+      async $allOperations({ operation, args, query }) {
+        // Hash password before create or update operations
+        if (operation === 'create' || operation === 'update') {
+          if (args.data && typeof args.data === 'object' && 'password' in args.data) {
+            const password = args.data.password;
+            if (typeof password === 'string' && password.length > 0) {
+              // Only hash if password is not already hashed (check if it doesn't start with $2b$)
+              if (!password.startsWith('$2b$')) {
+                const saltRounds = 8;
+                args.data.password = await bcrypt.hash(password, saltRounds);
+              }
+            }
+          }
+        }
+        
+        return query(args);
+      },
+    },
+  },
 });
 
 export default prisma;

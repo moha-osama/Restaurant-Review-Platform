@@ -26,6 +26,7 @@ model User {
 
   restaurants Restaurant[]
   reviews      Review[]
+  votes        ReviewVote[]
 }
 
 model Restaurant {
@@ -53,6 +54,21 @@ model Review {
 
   restaurant Restaurant @relation(fields: [restaurant_id], references: [id], onDelete: Cascade)
   user       User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  votes      ReviewVote[]
+}
+
+model ReviewVote {
+  id String @id @default(cuid())
+  review_id String
+  user_id String
+  value Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  review Review @relation(fields: [review_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([review_id, user_id])
 }
 
 model Events {
@@ -65,6 +81,7 @@ model Events {
   variant_id       String?   // optional
   device_type      String
   platform         String
+  session_id       String
   experiment       Experiment? @relation(fields: [experiment_id], references: [id])
   variant          Variant?    @relation(fields: [variant_id], references: [id])
 }

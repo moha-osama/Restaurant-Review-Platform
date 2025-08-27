@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { FaUtensils, FaUser, FaSignInAlt, FaSpinner } from "react-icons/fa";
-import { useAuth } from "../../hooks/useAuth";
+import { FaUtensils, FaUser, FaSignInAlt, FaSpinner, FaTrophy } from "react-icons/fa";
+import { useAuth } from "../hooks/useAuth";
 
 const Navbar = () => {
   const { isLoggedIn, user, isLoading, logout } = useAuth();
@@ -36,6 +36,17 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-8">
+            {/* Navigation Links */}
+            <div className="flex items-center space-x-6">
+              <Link
+                to="/leaderboard"
+                className="text-gray-700 hover:text-yellow-600 transition-colors duration-200 font-medium flex items-center space-x-2"
+              >
+                <FaTrophy className="text-lg" />
+                <span>Leaderboard</span>
+              </Link>
+            </div>
+
             {isLoading ? (
               // Show loading spinner while checking auth status
               <div className="flex items-center space-x-2">

@@ -8,6 +8,7 @@ import {
   deletePattern,
   setValueWithTTL,
 } from "../lib/redis-client.js";
+import { trackEvent } from "../services/eventTracker.js";
 
 export async function addRestaurant(req: Request, res: Response) {
   try {
@@ -81,6 +82,7 @@ export async function listRestaurants(req: Request, res: Response) {
 export async function getRestaurantDetails(req: Request, res: Response) {
   try {
     const id = req.params.id;
+    const clientIp = req.ipAddress;
     const restaurant = await prisma.restaurant.findUnique({
       where: { id },
       include: { reviews: true },
@@ -104,6 +106,18 @@ export async function getRestaurantDetails(req: Request, res: Response) {
     }));
     avgRatings.sort((a, b) => b.avg - a.avg);
     const rank = avgRatings.findIndex((r) => r.id === restaurant.id) + 1;
+
+console.log(req.session_id)
+
+    trackEvent({
+      event_name: "restaurant_viewed", 
+      user_id: req.user?req.user?.id:'Guest', 
+      session_id: req.session_id,
+      event_properties: {
+        restaurant_id: id, 
+        client_ip: clientIp
+      }
+    })
 
     res.json({ ...restaurant, leaderboardRank: rank });
   } catch (error) {
@@ -217,7 +231,7 @@ export async function getTopRestaurants(req: Request, res: Response) {
       // await setValue(cacheKey, JSON.stringify(topRestaurants));
       await setValueWithTTL(cacheKey, JSON.stringify(topRestaurants), 300);
 
-      res.status(200).json(topRestaurants);
+      res.status(200).json({ cachedData: false, parsedData: topRestaurants });
     }
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch top restaurants" });

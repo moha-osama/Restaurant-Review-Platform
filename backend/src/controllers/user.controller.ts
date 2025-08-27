@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import bcrypt from "bcrypt";
 import prisma from "../lib/client.js";
 
 // Consistent cookie options
@@ -63,11 +62,11 @@ export const signupUser = async (req: Request, res: Response) => {
         .json({ error: "User with this email already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 8);
+
     const user = await prisma.user.create({
       data: {
         email,
-        password: hashedPassword,
+        password,
         name,
         role,
       },

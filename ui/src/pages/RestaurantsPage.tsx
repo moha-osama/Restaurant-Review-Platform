@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState} from "react";
 import { useQuery } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
-import RestaurantCard from "../components/RestaurantCard";
+import { motion } from "framer-motion";
+import UnifiedRestaurantCard from "../components/RestaurantCard";
 // import Map from "../components/Map"; // Disabled map for now
 import { FaSearch, FaFilter } from "react-icons/fa";
 
@@ -29,7 +29,11 @@ const RestaurantsPage = () => {
   const { data: restaurants = [], isLoading } = useQuery({
     queryKey: ["restaurants"],
     queryFn: async () => {
-      const response = await fetch(`${BASE_API_URL}restaurants`);
+      const response = await fetch(`${BASE_API_URL}restaurants`,{
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -144,10 +148,11 @@ const RestaurantsPage = () => {
                 layout
                 transition={{ duration: 0.4, ease: "easeInOut" }}
               >
-                <RestaurantCard
+                <UnifiedRestaurantCard
                   {...restaurant}
                   rating={parseFloat(restaurant.avg_rating) || 0}
                   image="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop"
+                  variant="default"
                 />
               </motion.div>
             ))}

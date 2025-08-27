@@ -4,7 +4,9 @@ declare global {
   namespace Express {
     interface Request {
       user: User | null;
-      token?: string; // Optional token property for logout functionality
+      token?: string; 
+      ipAddress?: string; 
+      session_id: string;
     }
   }
 }
