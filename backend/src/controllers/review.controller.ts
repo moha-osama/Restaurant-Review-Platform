@@ -2,14 +2,6 @@ import type { Request, Response } from "express";
 import prisma from "../lib/client.js";
 
 const sentimentServiceUrl = process.env.SENTIMENT_SERVICE_URL;
-// POST /restaurants/:id/reviews
-// → Add a review.
-// → Call NLP microservice → get sentiment score → save in DB.
-// → Update leaderboard in Redis.
-
-// GET /restaurants/:id/reviews → List reviews for a restaurant.
-
-// DELETE /reviews/:id → Delete review (owner/admin).
 
 export async function addReview(req: Request, res: Response) {
   try {
@@ -24,25 +16,28 @@ export async function addReview(req: Request, res: Response) {
     }
 
     //Call NLP microservice to get sentiment score
-    const response = await fetch(`${sentimentServiceUrl}analyze`, {
-      body: JSON.stringify({ text: comment }),
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
-    const sentimentData = await response.json();
-    //
+    let sentimentData = { label: 0, score: 0 };
+    try {
+      const response = await fetch(`${sentimentServiceUrl}analyze`, {
+        body: JSON.stringify({ text: comment }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (response.status !== 200) {
+      }
+    } catch (error) {}
 
     // calculate avg-rating for restaurant
     const restaurantReviews = await prisma.review.findMany({
       where: { restaurant_id: restaurantId as string },
     });
+
     const avgRating =
       restaurantReviews.reduce(
         (acc, review) => acc + Number(review.rating),
         0
       ) / restaurantReviews.length;
     //
-
     const updateRestaurant = await prisma.restaurant.update({
       where: { id: restaurantId as string },
       data: { avg_rating: avgRating },

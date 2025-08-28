@@ -7,15 +7,22 @@ import {
   updateRestaurant,
   deleteRestaurant,
   getUserRestaurants,
+  getTopRestaurants,
 } from "../controllers/restaurants.controller.js";
 
 const restaurantRouter = Router();
 
 restaurantRouter.post("/", auth, requireRole("owner"), addRestaurant);
 restaurantRouter.get("/", listRestaurants);
-restaurantRouter.get("/my-restaurants", auth, requireRole("owner"), getUserRestaurants);
+restaurantRouter.get(
+  "/my-restaurants",
+  auth,
+  requireRole("owner"),
+  getUserRestaurants
+);
 restaurantRouter.put("/:id", auth, requireRole("owner"), updateRestaurant);
 restaurantRouter.delete("/:id", auth, requireRole("owner"), deleteRestaurant);
 restaurantRouter.get("/:id", getRestaurantDetails);
+restaurantRouter.get("/top/:count", getTopRestaurants);
 
 export default restaurantRouter;

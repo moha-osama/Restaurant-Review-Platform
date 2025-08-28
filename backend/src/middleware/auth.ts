@@ -9,6 +9,7 @@ interface JwtPayload {
 
 export async function auth(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies.auth_token;
+
   if (!token) {
     return res.status(401).json({ error: "No token provided" });
   }
@@ -18,18 +19,31 @@ export async function auth(req: Request, res: Response, next: NextFunction) {
     if (!secret) {
       throw new Error("JWT_SECRET environment variable is required");
     }
+
     const decoded = jwt.verify(token, secret) as JwtPayload;
 
-    // Fetch actual user data from database
     const user = await prisma.user.getCurrentUser(decoded.id);
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }
+
+    // IMPORTANT: Verify token is still active in user's tokens array
+    if (!user.tokens || !user.tokens.includes(token)) {
+      return res.status(401).json({ error: "Token no longer valid" });
+    }
+
     req.user = user;
 
     next();
   } catch (error) {
-    return res.status(401).json({ error: "Invalid or expired token" });
+    console.error("Auth error:", error);
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ error: "Token expired" });
+    }
+    return res.status(401).json({ error: "Authentication failed" });
   }
 }
 
