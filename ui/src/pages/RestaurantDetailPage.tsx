@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { FaStar, FaMapMarkerAlt, FaArrowLeft, FaClock } from "react-icons/fa";
+import { useAuth } from "../../hooks/useAuth";
 import RestaurantInfo from "../components/RestaurantInfo";
 import ReviewsList from "../components/ReviewsList";
 import AddReviewModal from "../components/AddReviewModal";
@@ -40,8 +41,8 @@ const RestaurantDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isLoggedIn, isLoading: authLoading } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAuthed, setIsAuthed] = useState(true);
   const [notification, setNotification] = useState({
     isVisible: false,
     message: "",
@@ -61,7 +62,7 @@ const RestaurantDetailPage = () => {
     enabled: !!id,
   });
 
-  // Fetch reviews for the restaurant
+  // Fetch reviews for the restaurant - only if user is authenticated
   const { data: reviews = [], isLoading: reviewsLoading } = useQuery({
     queryKey: ["reviews", id],
     queryFn: async () => {
@@ -69,15 +70,12 @@ const RestaurantDetailPage = () => {
         credentials: "include",
       });
 
-      if (response.status === 401) {
-        setIsAuthed(false);
-      }
       if (!response.ok) {
         throw new Error("Failed to fetch reviews");
       }
       return response.json();
     },
-    enabled: !!id,
+    enabled: !!id && isLoggedIn, // Only fetch reviews if user is authenticated
   });
 
   // Add review mutation
@@ -108,7 +106,7 @@ const RestaurantDetailPage = () => {
   };
 
   const handleAddReviewClick = () => {
-    if (!isAuthed) {
+    if (!isLoggedIn) {
       setNotification({
         isVisible: true,
         message: "Please login to add your review",
@@ -122,6 +120,26 @@ const RestaurantDetailPage = () => {
   const closeNotification = () => {
     setNotification((prev) => ({ ...prev, isVisible: false }));
   };
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div
+            className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto"
+            style={{ borderColor: "var(--selective-yellow)" }}
+          ></div>
+          <p
+            className="mt-6 text-lg font-medium"
+            style={{ color: "var(--dim-gray)" }}
+          >
+            Checking authentication...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (restaurantLoading) {
     return (
@@ -184,7 +202,7 @@ const RestaurantDetailPage = () => {
             className="text-3xl font-bold tracking-tight"
             style={{ color: "var(--night)" }}
           >
-            Reviews ({reviews.length})
+            Reviews ({isLoggedIn ? reviews.length : 12})
           </h2>
           <button
             onClick={handleAddReviewClick}
@@ -197,7 +215,7 @@ const RestaurantDetailPage = () => {
 
         {/* Reviews List */}
         <ReviewsList
-          isAuthed={isAuthed}
+          isAuthed={isLoggedIn}
           showTotalReviews={false}
           reviews={reviews}
           isLoading={reviewsLoading}

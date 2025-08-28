@@ -199,6 +199,7 @@ const OwnerRestaurants = ({ user }: OwnerRestaurantsProps) => {
       }
       return response.json();
     },
+    enabled: !!user?.id, // Only fetch if user is authenticated
     staleTime: 5 * 60 * 1000,
   });
 
