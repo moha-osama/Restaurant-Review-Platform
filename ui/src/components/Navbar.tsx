@@ -57,7 +57,7 @@ const Navbar = () => {
               <div className="flex items-center space-x-4">
                 <Link to="/dashboard" className="flex items-center space-x-2">
                   {user.profilePicture ? (
-                    <img
+                    <img loading="lazy" 
                       src={user.profilePicture}
                       alt="Profile"
                       className="w-10 h-10 rounded-full object-cover border-2 border-yellow-400"

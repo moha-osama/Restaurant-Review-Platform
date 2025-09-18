@@ -1,4 +1,5 @@
-import { useState} from "react";
+import { useState } from "react";
+import HomePageSkeleton from "../components/HomePageSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import UnifiedRestaurantCard from "../components/RestaurantCard";
@@ -61,22 +62,7 @@ const RestaurantsPage = () => {
   );
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div
-            className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto"
-            style={{ borderColor: "var(--selective-yellow)" }}
-          ></div>
-          <p
-            className="mt-6 text-lg font-medium"
-            style={{ color: "var(--dim-gray)" }}
-          >
-            Discovering amazing restaurants...
-          </p>
-        </div>
-      </div>
-    );
+    return <HomePageSkeleton />;
   }
   return (
     <div>

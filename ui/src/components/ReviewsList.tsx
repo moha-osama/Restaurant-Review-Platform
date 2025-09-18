@@ -1,3 +1,4 @@
+import { useAuth } from "../hooks/useAuth";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import ReviewItem from "./ReviewItem";
@@ -64,7 +65,10 @@ const ReviewsList = ({
   onDeleteReview,
   isAuthed = true,
 }: ReviewsListProps) => {
+
   const navigate = useNavigate();
+  const { user } = useAuth();
+
 
   if (isLoading) {
     return <Loading />;
@@ -190,16 +194,19 @@ const ReviewsList = ({
       )}
       {/* Reviews List */}
       <div className="space-y-4">
-        {reviews.map((review, index) => (
-          <motion.div
-            key={review.id}
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.1 }}
-          >
-            <ReviewItem review={review} />
-          </motion.div>
-        ))}
+        {reviews.map((review, index) => {
+          const isOwnReview = user?.id === review.user_id;
+          return (
+            <motion.div
+              key={review.id}
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <ReviewItem review={review} isOwnReview={isOwnReview} />
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

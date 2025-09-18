@@ -3,6 +3,7 @@ import ProfileCard from "../components/ProfileCard";
 import ReviewsList from "../components/ReviewsList";
 import OwnerRestaurants from "../components/OwnerRestaurants";
 import { useAuth } from "../hooks/useAuth";
+import DashboardSkeleton from "./DashboardSkeleton";
 
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL as string;
 
@@ -96,22 +97,7 @@ const DashboardPage = () => {
   };
 
   if (isLoading || reviewsLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div
-            className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto"
-            style={{ borderColor: "var(--selective-yellow)" }}
-          ></div>
-          <p
-            className="mt-6 text-lg font-medium"
-            style={{ color: "var(--dim-gray)" }}
-          >
-            Loading your dashboard...
-          </p>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (

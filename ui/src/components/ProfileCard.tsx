@@ -19,7 +19,7 @@ const ProfileCard = ({ user, onLogout }: ProfileCardProps) => {
     <div className="card text-center border border-gray-100 shadow-xl">
       <div className="mb-8 flex flex-col items-center">
         {user.avatar ? (
-          <img
+          <img loading="lazy" 
             src={user.avatar}
             alt="Profile"
             className="w-24 h-24 rounded-full mx-auto object-cover border-2 border-yellow-400"

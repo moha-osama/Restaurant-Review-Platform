@@ -74,7 +74,7 @@ const RestaurantCard = ({
 
         {/* Restaurant Image - Always show image for both variants */}
         <div className="w-full h-48 md:h-52">
-          <img
+          <img loading="lazy" 
             src={image || "https://via.placeholder.com/400x300/E3CAA0/775924?text=Restaurant"}
             alt={name}
             className="w-full h-full object-cover rounded-t-xl"

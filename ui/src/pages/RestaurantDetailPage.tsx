@@ -1,52 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { FaStar, FaMapMarkerAlt, FaArrowLeft, FaClock } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
 import RestaurantInfo from "../components/RestaurantInfo";
+import RestaurantInfoSkeleton from "../components/RestaurantInfoSkeleton";
 import ReviewsList from "../components/ReviewsList";
 import AddReviewModal from "../components/AddReviewModal";
 import Notification from "../components/Notification";
 
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL as string;
 
-interface Restaurant {
-  id: string;
-  owner_id: string;
-  name: string;
-  location: string;
-  description: string | null;
-  avg_rating: string;
-  avg_sentiment: string;
-  created_at: string;
-  avgRating: number | null;
-  avgSentiment: number | null;
-}
-
-interface Review {
-  id: string;
-  restaurant_id: string;
-  user_id: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-  user?: {
-    name: string;
-    email: string;
-  };
-}
-
 const RestaurantDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAuthed, setIsAuthed] = useState(true);
   const [notification, setNotification] = useState({
     isVisible: false,
     message: "",
     type: "info" as "info" | "warning" | "error" | "success",
   });
+  const { isLoggedIn: isAuthed, isLoading: authLoading } = useAuth();
 
   // Fetch restaurant details
   const { data: restaurant, isLoading: restaurantLoading } = useQuery({
@@ -61,23 +37,19 @@ const RestaurantDetailPage = () => {
     enabled: !!id,
   });
 
-  // Fetch reviews for the restaurant
+  // Fetch reviews for the restaurant (only if authenticated)
   const { data: reviews = [], isLoading: reviewsLoading } = useQuery({
     queryKey: ["reviews", id],
     queryFn: async () => {
       const response = await fetch(`${BASE_API_URL}restaurants/${id}/reviews`, {
         credentials: "include",
       });
-
-      if (response.status === 401) {
-        setIsAuthed(false);
-      }
       if (!response.ok) {
         throw new Error("Failed to fetch reviews");
       }
       return response.json();
     },
-    enabled: !!id,
+    enabled: !!id && isAuthed && !authLoading,
   });
 
   // Add review mutation
@@ -123,23 +95,8 @@ const RestaurantDetailPage = () => {
     setNotification((prev) => ({ ...prev, isVisible: false }));
   };
 
-  if (restaurantLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div
-            className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto"
-            style={{ borderColor: "var(--selective-yellow)" }}
-          ></div>
-          <p
-            className="mt-6 text-lg font-medium"
-            style={{ color: "var(--dim-gray)" }}
-          >
-            Loading restaurant details...
-          </p>
-        </div>
-      </div>
-    );
+  if (restaurantLoading || authLoading) {
+    return <RestaurantInfoSkeleton />;
   }
 
   if (!restaurant) {
@@ -199,7 +156,7 @@ const RestaurantDetailPage = () => {
         <ReviewsList
           isAuthed={isAuthed}
           showTotalReviews={false}
-          reviews={reviews}
+          reviews={isAuthed ? reviews : []}
           isLoading={reviewsLoading}
         />
       </div>

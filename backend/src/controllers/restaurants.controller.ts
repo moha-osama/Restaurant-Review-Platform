@@ -107,8 +107,6 @@ export async function getRestaurantDetails(req: Request, res: Response) {
     avgRatings.sort((a, b) => b.avg - a.avg);
     const rank = avgRatings.findIndex((r) => r.id === restaurant.id) + 1;
 
-console.log(req.session_id)
-
     trackEvent({
       event_name: "restaurant_viewed", 
       user_id: req.user?req.user?.id:'Guest', 

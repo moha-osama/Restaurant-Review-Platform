@@ -2,7 +2,7 @@ import { FaUser, FaClock, FaThumbsUp, FaThumbsDown } from "react-icons/fa";
 import { Rating } from "react-simple-star-rating";
 import { useVote } from "../hooks/useVote";
 import { useState, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
+// import { useAuth } from "../hooks/useAuth";
 
 interface Review {
   id: string;
@@ -29,11 +29,11 @@ interface ReviewVote {
 
 interface ReviewItemProps {
   review: Review;
+  isOwnReview?: boolean;
 }
 
-const ReviewItem = ({ review }: ReviewItemProps) => {
+const ReviewItem = ({ review, isOwnReview }: ReviewItemProps) => {
   const { voteReview, getUserVote, isVoting } = useVote();
-  const { user } = useAuth();
   const [userVote, setUserVote] = useState<number | null>(null);
   const [voteCount, setVoteCount] = useState<{ up: number; down: number }>(() => {
     if (review.votes) {
@@ -44,7 +44,7 @@ const ReviewItem = ({ review }: ReviewItemProps) => {
     return { up: 0, down: 0 };
   });
 
-  const isOwnReview = user?.id === review.user_id;
+  // isOwnReview is now passed as a prop from ReviewsList
 
   useEffect(() => {
     const fetchUserVote = async () => {
@@ -127,7 +127,7 @@ const ReviewItem = ({ review }: ReviewItemProps) => {
             {review.comment}
           </p>
         </div>
-        {!isOwnReview && user && (
+  {!isOwnReview && (
           <div className="flex items-center justify-between pt-4 border-t border-gray-200">
             <div className="flex items-center space-x-4">
               <button
@@ -180,7 +180,7 @@ const ReviewItem = ({ review }: ReviewItemProps) => {
             </div>
           </div>
         )}
-        {isOwnReview && (voteCount.up > 0 || voteCount.down > 0) && (
+  {isOwnReview && (voteCount.up > 0 || voteCount.down > 0) && (
           <div className="flex items-center justify-end pt-4 border-t border-gray-200">
             <div className="text-sm font-medium text-gray-600">
               Score: {voteCount.up - voteCount.down}

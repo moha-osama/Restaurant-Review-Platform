@@ -12,8 +12,7 @@ import DashboardPage from "./pages/DashboardPage";
 import LeaderBoard from "./pages/LeaderBoard";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { Suspense, lazy } from "react";
-import Loading from "./components/Loading";
+import RestaurantDetailPage from "./pages/RestaurantDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -37,10 +36,6 @@ const pageVariants = {
 
 const AnimatedRoutes = () => {
   const location = useLocation();
-
-  const RestaurantDetailPage = lazy(
-    () => import("./pages/RestaurantDetailPage")
-  );
 
   return (
     <AnimatePresence mode="wait">
@@ -106,7 +101,6 @@ const AnimatedRoutes = () => {
         <Route
           path="/restaurant/:id"
           element={
-            <Suspense fallback={<Loading />}>
               <motion.div
                 initial="initial"
                 animate="in"
@@ -116,7 +110,6 @@ const AnimatedRoutes = () => {
               >
                 <RestaurantDetailPage />
               </motion.div>
-            </Suspense>
           }
         />
       </Routes>

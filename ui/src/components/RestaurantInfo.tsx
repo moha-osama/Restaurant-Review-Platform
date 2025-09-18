@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { FaMapMarkerAlt, FaClock } from "react-icons/fa";
 import { Rating } from "react-simple-star-rating";
 
@@ -32,7 +31,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps) => {
     <div className="card border border-gray-100 shadow-xl overflow-hidden">
       {/* Hero Image */}
       <div className="relative h-64 md:h-80">
-        <img
+        <img loading="lazy" 
           src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=400&fit=crop"
           alt={restaurant.name}
           className="w-full h-full object-cover"

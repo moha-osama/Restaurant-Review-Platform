@@ -10,9 +10,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isLoggedIn, isLoading } = useAuth();
 
   if (isLoading) {
+    // Checking user authentication status while loading
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <FaSpinner className="animate-spin text-4xl text-yellow-400" />
+      <div className="flex flex-col justify-center items-center min-h-screen">
+        <FaSpinner className="animate-spin text-4xl text-yellow-400 mb-4" />
+        <span className="text-lg text-gray-700">Checking if you are authenticated...</span>
       </div>
     );
   }
