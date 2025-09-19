@@ -8,7 +8,7 @@ const LeaderBoard = () => {
   const { data: responseData, isLoading } = useQuery({
     queryKey: ["top-restaurants"],
     queryFn: async () => {
-      const response = await fetch(`${BASE_API_URL}restaurants/top/3`);
+      const response = await fetch(`${BASE_API_URL}/restaurants/top/3`);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

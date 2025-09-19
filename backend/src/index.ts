@@ -1,12 +1,15 @@
 import express from "express";
 
 import userRouter from "./routes/user.router.js";
+
 import restaurantRouter from "./routes/restaurants.router.js";
 import reviewRouter from "./routes/review.router.js";
 import eventsRouter from "./routes/events.router.js";
 import assignmentsRouter from "./routes/assignments.router.js";
 import experimentsRouter from "./routes/experiments.router.js";
 import variantsRouter from "./routes/variants.router.js";
+import locationRouter from "./routes/location.router.js";
+
 import { ipMiddleware } from "./middleware/ipMiddleware.js";
 import { sessionMiddleware } from "./middleware/session.js";
 
@@ -47,6 +50,7 @@ app.use("/events", eventsRouter);
 app.use("/assignments", assignmentsRouter);
 app.use("/experiments", experimentsRouter);
 app.use("/variants", variantsRouter);
+app.use("/location", locationRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Restaurant Review Platform! - v2");

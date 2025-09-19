@@ -10,45 +10,64 @@ const BASE_API_URL = import.meta.env.VITE_BASE_API_URL as string;
 
 // Define the restaurant type based on API response
 interface Restaurant {
-  id: string;
-  owner_id: string;
-  name: string;
-  location: string;
-  description: string | null;
-  avg_rating: string;
-  avg_sentiment: string;
-  created_at: string;
-  avgRating: number | null;
-  avgSentiment: number | null;
-  // Add coordinates for map functionality
-  coordinates?: { lat: number; lng: number };
+    cuisine: String;
+    id: Number;
+    lat: Number;
+    lon: Number;
+    name: String;
+    description: String|null;
+    avg_rating: String | null;
+    total_reviews: Number | null;
+    avg_sentiment: String | null;
 }
 
 const RestaurantsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
+
+  useState(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          setUserLocation({ lat: 30.0631567, lon: 30.0631567 });
+        }
+      );
+    } else {
+      setUserLocation({ lat: 30.0631567, lon: 30.0631567 });
+    }
+  });
   const { data: restaurants = [], isLoading } = useQuery({
-    queryKey: ["restaurants"],
+    queryKey: ["restaurants", userLocation],
     queryFn: async () => {
-      const response = await fetch(`${BASE_API_URL}restaurants`,{
+      if (!userLocation) return [];
+      const response = await fetch(`${BASE_API_URL}/restaurants/global/5`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          lat: userLocation.lat,
+          lon: userLocation.lon,
+          radius: 150000,
+        }),
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      // Add mock coordinates for map functionality since API doesn't provide them
-      return data.map((restaurant: Restaurant) => ({
-        ...restaurant,
-        coordinates: {
-          lat: 40.7128 + Math.random() * 0.1, // Random coordinates around NYC
-          lng: -74.006 + Math.random() * 0.1,
-        },
-      }));
+      console.log("Fetched restaurants:", data);
+      return data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!userLocation,
   });
 
   const filteredRestaurants = restaurants.filter(
@@ -57,8 +76,8 @@ const RestaurantsPage = () => {
       (restaurant.description &&
         restaurant.description
           .toLowerCase()
-          .includes(searchTerm.toLowerCase())) ||
-      restaurant.location.toLowerCase().includes(searchTerm.toLowerCase())
+          .includes(searchTerm.toLowerCase()))
+          //  || restaurant.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {

@@ -235,3 +235,50 @@ export async function getTopRestaurants(req: Request, res: Response) {
     res.status(500).json({ error: "Failed to fetch top restaurants" });
   }
 }
+
+export async function getGlobalRestaurants(req: Request, res: Response) {
+  const {radius, lat, lon} = req.body
+  const count = req.params.count ? parseInt(req.params.count) : 10;
+
+  if (!radius || !lat || !lon) {
+    return res.status(400).json({ error: "radius, lat, and lon are required in the request body" });
+  }
+    
+  const query = `
+    [out:json];
+    (
+      node["amenity"="restaurant"](around:${radius},${lat},${lon});
+      way["amenity"="restaurant"](around:${radius},${lat},${lon});
+      relation["amenity"="restaurant"](around:${radius},${lat},${lon});
+    );
+    out center ${count};
+  `; 
+
+    const url = "https://overpass-api.de/api/interpreter";
+
+    const response = await fetch(url, {
+    method: "POST",
+    body: query,
+  });
+
+  if (!response.ok) {
+    throw new Error("Overpass API request failed: " + response.statusText);
+  }
+
+  const data = await response.json();
+
+  const restaurants = data.elements.map((el: any) => {
+    let lat = el.lat || (el.center && el.center.lat);
+    let lon = el.lon || (el.center && el.center.lon);
+
+    let name = el.tags?.['name:en'] || el.tags?.name || "Unnamed";
+    return {
+      id: el.id,
+      name,
+      cuisine: el.tags?.cuisine || "Unknown",
+      lat,
+      lon
+    };
+  });
+    res.status(200).json(restaurants);
+}

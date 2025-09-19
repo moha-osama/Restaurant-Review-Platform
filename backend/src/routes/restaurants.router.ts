@@ -8,6 +8,7 @@ import {
   deleteRestaurant,
   getUserRestaurants,
   getTopRestaurants,
+  getGlobalRestaurants
 } from "../controllers/restaurants.controller.js";
 
 const restaurantRouter = Router();
@@ -24,5 +25,6 @@ restaurantRouter.put("/:id", auth, requireRole("owner"), updateRestaurant);
 restaurantRouter.delete("/:id", auth, requireRole("owner"), deleteRestaurant);
 restaurantRouter.get("/:id", getRestaurantDetails);
 restaurantRouter.get("/top/:count", getTopRestaurants);
+restaurantRouter.post("/global/:count", getGlobalRestaurants);
 
 export default restaurantRouter;

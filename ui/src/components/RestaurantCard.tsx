@@ -1,6 +1,14 @@
 import { FaMapMarkerAlt, FaTrophy, FaMedal, FaAward } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Rating } from "react-simple-star-rating";
+import { useEffect, useState } from "react";
+
+// Simple skeleton loader for location
+const LocationSkeleton = () => (
+  <span className="inline-block bg-gray-200 rounded w-32 h-4 animate-pulse" />
+);
+
+const BASE_API_URL = import.meta.env.VITE_BASE_API_URL as string;
 
 interface RestaurantCardProps {
   id: string;
@@ -14,6 +22,8 @@ interface RestaurantCardProps {
   avgSentiment?: number | null;
   variant?: 'default' | 'top';
   onClick?: () => void;
+  lat: number;
+  lon: number;
 }
 
 const RestaurantCard = ({
@@ -26,6 +36,8 @@ const RestaurantCard = ({
   rank,
   totalReviews,
   avgSentiment,
+  lat,
+  lon,
   variant = 'default',
   onClick,
 }: RestaurantCardProps) => {
@@ -52,6 +64,28 @@ const RestaurantCard = ({
       navigate(`/restaurant/${id}`);
     }
   };
+
+
+  // State for readable location
+  const [readableLocation, setReadableLocation] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check if location is in lat,lon format
+    if (lat && lon) {
+      fetch(`${BASE_API_URL}/location/encode?lat=${lat}&lon=${lon}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.location && data.location.display_name) {
+            setReadableLocation(data.location.display_name);
+          } else {
+            setReadableLocation(null);
+          }
+        })
+        .catch(() => setReadableLocation(null));
+    } else {
+      setReadableLocation(location);
+    }
+  }, [location]);
 
   const isTopVariant = variant === 'top';
 
@@ -123,7 +157,9 @@ const RestaurantCard = ({
             style={{ color: "var(--dim-gray)" }}
           >
             <FaMapMarkerAlt className="text-sm" />
-            <span className="text-sm font-medium">{location}</span>
+            <span className="text-sm font-medium">
+              {readableLocation === null ? <LocationSkeleton /> : readableLocation}
+            </span>
           </div>
           
           {/* Rating display - Different layout for top variant */}

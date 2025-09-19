@@ -29,7 +29,7 @@ export const useVote = () => {
     setIsVoting(true);
     try {
       const response = await fetch(
-        `${BASE_API_URL}restaurants/${restaurantId}/reviews/${reviewId}/vote`,
+        `${BASE_API_URL}/restaurants/${restaurantId}/reviews/${reviewId}/vote`,
         {
           method: 'POST',
           headers: {
@@ -65,7 +65,7 @@ export const useVote = () => {
 
     try {
       const response = await fetch(
-        `${BASE_API_URL}restaurants/${restaurantId}/reviews/${reviewId}/vote`,
+        `${BASE_API_URL}/restaurants/${restaurantId}/reviews/${reviewId}/vote`,
         {
             credentials: 'include',
         }

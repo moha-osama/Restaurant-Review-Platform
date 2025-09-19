@@ -40,7 +40,7 @@ const DashboardPage = () => {
   const { data: restaurants = [] } = useQuery({
     queryKey: ["restaurants"],
     queryFn: async () => {
-      const response = await fetch(`${BASE_API_URL}restaurants`);
+      const response = await fetch(`${BASE_API_URL}/restaurants`);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -55,7 +55,7 @@ const DashboardPage = () => {
     queryKey: ["user-reviews"],
     queryFn: async () => {
       const response = await fetch(
-        `${BASE_API_URL}users/${user?.id}/reviews`,
+        `${BASE_API_URL}/users/${user?.id}/reviews`,
         {
           credentials: "include",
         }
