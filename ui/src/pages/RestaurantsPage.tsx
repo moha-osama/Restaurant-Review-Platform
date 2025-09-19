@@ -30,7 +30,7 @@ const RestaurantsPage = () => {
   const { data: restaurants = [], isLoading } = useQuery({
     queryKey: ["restaurants"],
     queryFn: async () => {
-      const response = await fetch(`${BASE_API_URL}restaurants`,{
+      const response = await fetch(`${BASE_API_URL}/restaurants`,{
         headers: {
           "Content-Type": "application/json",
         },

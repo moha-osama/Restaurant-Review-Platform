@@ -191,7 +191,7 @@ const OwnerRestaurants = ({ user }: OwnerRestaurantsProps) => {
   const { data: restaurants = [], isLoading } = useQuery({
     queryKey: ["user-restaurants"],
     queryFn: async () => {
-      const response = await fetch(`${BASE_API_URL}restaurants/my-restaurants`, {
+      const response = await fetch(`${BASE_API_URL}/restaurants/my-restaurants`, {
         credentials: "include",
       });
       if (!response.ok) {
@@ -205,7 +205,7 @@ const OwnerRestaurants = ({ user }: OwnerRestaurantsProps) => {
   // Add restaurant mutation
   const addRestaurantMutation = useMutation({
     mutationFn: async (data: { name: string; location: string }) => {
-      const response = await fetch(`${BASE_API_URL}restaurants`, {
+      const response = await fetch(`${BASE_API_URL}/restaurants`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -228,7 +228,7 @@ const OwnerRestaurants = ({ user }: OwnerRestaurantsProps) => {
   // Update restaurant mutation
   const updateRestaurantMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: { name: string; location: string } }) => {
-      const response = await fetch(`${BASE_API_URL}restaurants/${id}`, {
+      const response = await fetch(`${BASE_API_URL}/restaurants/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -251,7 +251,7 @@ const OwnerRestaurants = ({ user }: OwnerRestaurantsProps) => {
   // Delete restaurant mutation
   const deleteRestaurantMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`${BASE_API_URL}restaurants/${id}`, {
+      const response = await fetch(`${BASE_API_URL}/restaurants/${id}`, {
         method: "DELETE",
         credentials: "include",
       });

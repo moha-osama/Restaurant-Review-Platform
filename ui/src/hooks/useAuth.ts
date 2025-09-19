@@ -55,7 +55,7 @@ export const useAuth = () => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const response = await fetch(`${BASE_API_URL}users/profile`, {
+        const response = await fetch(`${BASE_API_URL}/users/profile`, {
           method: "GET",
           credentials: "include",
         });
@@ -82,7 +82,7 @@ export const useAuth = () => {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData): Promise<LoginResponse> => {
-      const response = await fetch(`${BASE_API_URL}users/login`, {
+      const response = await fetch(`${BASE_API_URL}/users/login`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -113,7 +113,7 @@ export const useAuth = () => {
 
   const signupMutation = useMutation({
     mutationFn: async (data: SignupData): Promise<SignupResponse> => {
-      const response = await fetch(`${BASE_API_URL}users`, {
+      const response = await fetch(`${BASE_API_URL}/users`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -146,7 +146,7 @@ export const useAuth = () => {
 
   const logout = async () => {
     try {
-      const response = await fetch(`${BASE_API_URL}users/logout`, {
+      const response = await fetch(`${BASE_API_URL}/users/logout`, {
         method: "POST",
         credentials: "include",
       });

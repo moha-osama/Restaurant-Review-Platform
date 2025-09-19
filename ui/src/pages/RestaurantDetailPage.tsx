@@ -28,7 +28,7 @@ const RestaurantDetailPage = () => {
   const { data: restaurant, isLoading: restaurantLoading } = useQuery({
     queryKey: ["restaurant", id],
     queryFn: async () => {
-      const response = await fetch(`${BASE_API_URL}restaurants/${id}`);
+      const response = await fetch(`${BASE_API_URL}/restaurants/${id}`);
       if (!response.ok) {
         throw new Error("Restaurant not found");
       }
@@ -41,7 +41,7 @@ const RestaurantDetailPage = () => {
   const { data: reviews = [], isLoading: reviewsLoading } = useQuery({
     queryKey: ["reviews", id],
     queryFn: async () => {
-      const response = await fetch(`${BASE_API_URL}restaurants/${id}/reviews`, {
+      const response = await fetch(`${BASE_API_URL}/restaurants/${id}/reviews`, {
         credentials: "include",
       });
       if (!response.ok) {
@@ -55,7 +55,7 @@ const RestaurantDetailPage = () => {
   // Add review mutation
   const addReviewMutation = useMutation({
     mutationFn: async (reviewData: { rating: number; comment: string }) => {
-      const response = await fetch(`${BASE_API_URL}restaurants/${id}/reviews`, {
+      const response = await fetch(`${BASE_API_URL}/restaurants/${id}/reviews`, {
         method: "POST",
         credentials: "include",
         headers: {
